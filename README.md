@@ -52,21 +52,21 @@ $ npm install babel-plugin-transform-class-inherited-hook
 
 ```json
 {
-	"plugins": ["on-inherited-hook"]
+	"plugins": ["transform-class-inherited-hook"]
 }
 ```
 
 ### Via CLI
 
 ```sh
-$ babel --plugins on-inherited-hook script.js
+$ babel --plugins transform-class-inherited-hook script.js
 ```
 
 ### Via Node API
 
 ```javascript
 require('babel').transform('code', {
-	plugins: ['on-inherited-hook']
+	plugins: ['transform-class-inherited-hook']
 });
 ```
 
