@@ -8,34 +8,85 @@ Before:
 ```javascript
 class Apple extends Fruit {
 	constructor() {
-		console.log("Yum!")
+		console.log("Yum!");
 	}
 }
 ```
 After:
 ```javascript
-class Apple extends Fruit {
-	constructor() {
-		console.log("Yum!")
-	}
-}
-
-if (Fruit.hasOwnProperty("onInherited")) {
-  if (typeof Fruit.onInherited == 'function') {
-    Fruit.onInherited(Apple);
-  } else {
-    throw new TypeError("Attempted to call onInherited, but it was not a function");
+var Apple = function (_Fruit) {
+  var _Apple = class extends _Fruit {
+    constructor() {
+      console.log("Yum!");
+    }
   }
+
+  if (_Fruit.hasOwnProperty("onInherited")) {
+    if (typeof _Fruit.onInherited == 'function') {
+      var _Apple2 = _Fruit.onInherited(_Apple) || _Apple;
+    } else {
+      throw new TypeError("Attempted to call onInherited, but it was not a function");
+    }
+  }
+  return _Apple2;
+}(Fruit);
+```
+
+## What?
+
+Every class declaration with a superClass gets transformed into an expression that:
+* Creates the class
+* calls `SuperClass.onInherited(ChildClass)` if present
+* evaluates to the return value of `SuperClass.onInherited(ChildClass)` if available, otherwise the created class
+
+This lets you hook class inheritance:
+```javascript
+class LoggedItem {
+	static onInherited(child) {
+		console.log("A new logged item type was created:", child);
+	}
 }
 ```
 
-This lets you do, for example:
+It also lets you transform classes at inheritance time:
 ```javascript
-class Fruit {
-	static onInherited(child) {
-		registerFruitType(child);
-	}
+class Polyfill {
+  static needsToBeShimmed() {
+    return true;
+  }
+
+  static nativeClass() {
+    return null;
+  }
+
+  static onInherited(child) {
+    let { needsToBeShimmed, nativeClass } = child || this;
+
+    if (!needsToBeShimmed()) {
+      // If we return a value from onInherited, it will be used
+      // as the value of the class declaration instead of child
+      return nativeClass();
+    }
+  }
 }
+
+class Promise extends Polyfill {
+  static needsToBeShimmed() {
+    return !window.Promise;
+  }
+
+  static nativeClass() {
+    return window.Promise;
+  }
+
+  constructor(func) {
+    ...
+  }
+}
+
+// Promise now refers to either window.Promise or the class defined by
+// the Promise class declaration above, depending on if needsToBeShimmed()
+// evaluated to true or false
 ```
 
 ## Installation
