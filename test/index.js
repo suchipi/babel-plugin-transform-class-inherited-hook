@@ -5,6 +5,7 @@ var clear = require('clear');
 var diff = require('diff');
 var fs = require('fs');
 var path = require('path');
+var Mocha = require('mocha');
 
 require('babel-register');
 
@@ -21,6 +22,32 @@ function runTests() {
 	}).filter(function(item) {
 		return fs.statSync(item.path).isDirectory();
 	}).forEach(runTest);
+
+	runMocha();
+}
+
+function runMocha() {
+	// Instantiate a Mocha instance.
+	var mocha = new Mocha();
+
+	var testDir = path.join(__dirname, 'mocha')
+
+	var suite = path.join(testDir, 'suite.js')
+
+	var output = babel.transformFileSync(suite, {
+		plugins: [pluginPath]
+	});
+
+	var suiteCompiled = path.join(testDir, '.suite_compiled.js');
+
+	fs.writeFileSync(suiteCompiled, output.code);
+
+	delete require.cache[require.resolve(suiteCompiled)];
+
+	mocha.addFile(suiteCompiled);
+
+	// Run the tests.
+	mocha.run();
 }
 
 function runTest(dir) {
@@ -54,7 +81,9 @@ function runTest(dir) {
 }
 
 if (process.argv.indexOf('--watch') >= 0) {
-	require('watch').watchTree(__dirname + '/..', function () {
+	require('watch').watchTree(__dirname + '/..', {
+		ignoreDotFiles: true
+	}, function () {
 		delete require.cache[pluginPath];
 		clear();
 		console.log('Press Ctrl+C to stop watching...');

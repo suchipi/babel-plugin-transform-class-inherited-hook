@@ -57,8 +57,15 @@ module.exports = function({ types: t }) {
           var expressionStatement = transform(childClassName, path);
 
           if (t.isClassDeclaration(path.node)) {
-            path.remove();
-            path.scope.parent.push({ id: t.identifier(childClassName), init: expressionStatement.expression });
+            path.replaceWith(t.variableDeclaration(
+              "var",
+              [
+                t.variableDeclarator(
+                  t.identifier(childClassName),
+                  expressionStatement.expression
+                )
+              ]
+            ));
           } else if (t.isClassExpression(path.node)) {
             path.replaceWith(expressionStatement.expression);
           }
