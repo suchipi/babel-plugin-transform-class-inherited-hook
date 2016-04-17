@@ -195,5 +195,5 @@ require('babel-core').transform('code', {
 
 ## Thanks
 
-[RReverser/babel-plugin-hello-world](https://github.com/rreverser/babel-plugin-hello-world) for the great babel plugin template
-[thejameskyle/babel-handbook](https://github.com/thejameskyle/babel-handbook) for the documentation to get me started
+* [RReverser/babel-plugin-hello-world](https://github.com/rreverser/babel-plugin-hello-world) for the great babel plugin template
+* [thejameskyle/babel-handbook](https://github.com/thejameskyle/babel-handbook) for the documentation to get me started
