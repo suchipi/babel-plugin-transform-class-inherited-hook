@@ -7,9 +7,9 @@ Babel plugin that transforms class declarations with superclasses to call superc
 Before:
 ```javascript
 class Apple extends Fruit {
-	constructor() {
-		console.log("Yum!");
-	}
+  constructor() {
+    console.log("Yum!");
+  }
 }
 ```
 After:
@@ -37,16 +37,21 @@ var Apple = function (_Fruit) {
 ## What?
 
 Every class declaration with a superClass gets transformed into an expression that:
-* Creates the class
+* Creates the child class
 * calls `SuperClass.onInherited(ChildClass)` if present
-* evaluates to the return value of `SuperClass.onInherited(ChildClass)` if available, otherwise the created class
+* evaluates to the return value of `SuperClass.onInherited(ChildClass)` if any, otherwise the created child class
+
+## Why?
 
 This lets you hook class inheritance:
 ```javascript
+function register(klass){ ... } // Add to a map, wire things up, etc
+
 class LoggedItem {
-	static onInherited(child) {
-		console.log("A new logged item type was created:", child);
-	}
+  static onInherited(child) {
+    console.log("A new logged item type was created:", child);
+    register(child);
+  }
 }
 ```
 
@@ -91,10 +96,75 @@ class Promise extends Polyfill {
 // evaluated to true or false
 ```
 
+## No really, what are some practical uses?
+
+Ok, how about automatically calling react-redux's `connect` method?
+```javascript
+import React from 'react';
+import { connect } from 'react-redux';
+
+class ReduxContainer extends React.Component {
+  static onInherited(child) {
+    let { mapStateToProps, mapDispatchToProps, mergeProps } = child;
+    return connect(mapStateToProps, mapDispatchToProps, mergeProps)(child);
+    }
+  }
+}
+
+class SomeContainer extends ReduxContainer {
+  static mapStateToProps(state, ownProps) { ... }
+}
+// SomeContainer has already been connected to the store
+```
+
+Or maybe generating a reducer from a class with action handler methods?
+```javascript
+import { handleActions } from 'redux-actions';
+
+class Reducer {
+  static onInherited(child) {
+    // The return value of onInherited doesn't have to be a class
+    return handleActions(child.prototype);
+  }
+}
+
+class Todos extends Reducer {
+  ADD_TODO(state, action) { ... }
+  REMOVE_TODO(state, action) { ... }
+}
+// Todos is a reducer function that will handle ADD_TODO and REMOVE_TODO actions
+```
+
+You could even do the unthinkable...
+```javascript
+let ActiveRecord = {
+  Base: class {
+    static onInherited(child) {
+      associateWithDatabaseTable(child, child.tableName);
+      definePropertyAccessorsUsingAttributes(child, child.tableName);
+      child.find = createDatabaseFinderMethod(child, child.tableName);
+    }
+
+    save() { ... }
+  }
+};
+
+class User extends ActiveRecord.Base {
+  static tableName = "users";
+}
+
+User.find(1).name === "Bob";
+
+```
+
+## But this makes class extension untrustworthy and changes the semantics of a well-defined system!
+
+Yeah, it does. But it can help create a little bit of structure in an otherwise anything-goes pure functional world.
+
 ## Installation
 
 ```sh
-$ npm install babel-plugin-transform-class-inherited-hook
+$ npm install --save babel-plugin-transform-class-inherited-hook
 ```
 
 ## Usage
@@ -105,7 +175,7 @@ $ npm install babel-plugin-transform-class-inherited-hook
 
 ```json
 {
-	"plugins": ["transform-class-inherited-hook"]
+  "plugins": ["transform-class-inherited-hook"]
 }
 ```
 
@@ -118,11 +188,12 @@ $ babel --plugins transform-class-inherited-hook script.js
 ### Via Node API
 
 ```javascript
-require('babel').transform('code', {
-	plugins: ['transform-class-inherited-hook']
+require('babel-core').transform('code', {
+  plugins: ['transform-class-inherited-hook']
 });
 ```
 
 ## Thanks
 
 [RReverser/babel-plugin-hello-world](https://github.com/rreverser/babel-plugin-hello-world) for the great babel plugin template
+[thejameskyle/babel-handbook](https://github.com/thejameskyle/babel-handbook) for the documentation to get me started
