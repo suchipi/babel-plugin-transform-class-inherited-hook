@@ -40,9 +40,11 @@ var Apple = function (_Fruit) {
     return _Banana;
   }(_Fruit);
 
+  var _Banana2 = _Banana;
+
   if (_Fruit.hasOwnProperty("onInherited")) {
     if (typeof _Fruit.onInherited == 'function') {
-      var _Banana2 = _Fruit.onInherited(_Banana) || _Banana;
+      _Banana2 = _Fruit.onInherited(_Banana) || _Banana;
     } else {
       throw new TypeError("Attempted to call onInherited, but it was not a function");
     }

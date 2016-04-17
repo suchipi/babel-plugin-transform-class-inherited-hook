@@ -4,9 +4,10 @@ module.exports = function({ types: t }) {
   var tmpl = template(`
     (function(SUPER_INSIDE){
       var CHILD_INSIDE_1 = CLASS_EXPRESSION
+      var CHILD_INSIDE_2 = CHILD_INSIDE_1
       if (SUPER_INSIDE.hasOwnProperty("onInherited")) {
         if (typeof SUPER_INSIDE.onInherited == 'function') {
-          var CHILD_INSIDE_2 = SUPER_INSIDE.onInherited(CHILD_INSIDE_1) || CHILD_INSIDE_1;
+          CHILD_INSIDE_2 = SUPER_INSIDE.onInherited(CHILD_INSIDE_1) || CHILD_INSIDE_1;
         } else {
           throw new TypeError("Attempted to call onInherited, but it was not a function");
         }

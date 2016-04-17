@@ -63,4 +63,19 @@ describe('Class.onInherited', function() {
       expect(Child).to.equal(replacement);
     });
   });
+
+  describe("classes without an onInherited callback", function(){
+    it("still function properly", function() {
+      class Parent {
+        static number() { return 7; }
+      }
+
+      class Child extends Parent {
+        static letter() { return "A"; }
+      }
+
+      expect(Child.number()).to.equal(7);
+      expect(Child.letter()).to.equal("A");
+    });
+  });
 })
