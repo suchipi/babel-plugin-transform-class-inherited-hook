@@ -12,7 +12,9 @@ module.exports = function({ types: t }) {
           throw new TypeError("Attempted to call onInherited, but it was not a function");
         }
       }
-      Object.defineProperty(CHILD_INSIDE_2, "name", { value: CHILD_NAME, configurable: true });
+      if (typeof CHILD_INSIDE_2 == 'function') {
+        Object.defineProperty(CHILD_INSIDE_2, "name", { value: CHILD_NAME, configurable: true });
+      }
       return CHILD_INSIDE_2;
     })(SUPER_OUTSIDE)
   `);
