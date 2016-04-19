@@ -50,5 +50,9 @@ var Apple = function (_Fruit) {
     }
   }
 
+  Object.defineProperty(_Apple2, "name", {
+    value: "Apple",
+    configurable: true
+  });
   return _Apple2;
 }(Fruit);

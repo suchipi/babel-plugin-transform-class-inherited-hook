@@ -54,6 +54,10 @@ var _class = function (_Fruit) {
     }
   }
 
+  Object.defineProperty(_class3, "name", {
+    value: "_class",
+    configurable: true
+  });
   return _class3;
 }(Fruit);
 

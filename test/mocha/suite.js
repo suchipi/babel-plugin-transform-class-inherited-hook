@@ -32,6 +32,16 @@ describe('Class.onInherited', function() {
 
       expect(Child).to.equal(replacement);
     });
+
+    it("has a reliable name property", function(){
+      class Parent {
+        static onInherited(child) {}
+      }
+
+      class Child extends Parent {}
+
+      expect(Child.name).to.equal("Child");
+    });
   });
 
   describe("using class expressions", function(){
@@ -62,6 +72,16 @@ describe('Class.onInherited', function() {
 
       expect(Child).to.equal(replacement);
     });
+
+    it("has a reliable name property", function(){
+      var Parent = class {
+        static onInherited(child) {}
+      }
+
+      var Child = class extends Parent {}
+
+      expect(Child.name).to.equal("Child");
+    });
   });
 
   describe("classes without an onInherited callback", function(){
@@ -76,6 +96,7 @@ describe('Class.onInherited', function() {
 
       expect(Child.number()).to.equal(7);
       expect(Child.letter()).to.equal("A");
+      expect(Child.name).to.equal("Child");
     });
   });
 

@@ -12,6 +12,7 @@ module.exports = function({ types: t }) {
           throw new TypeError("Attempted to call onInherited, but it was not a function");
         }
       }
+      Object.defineProperty(CHILD_INSIDE_2, "name", { value: CHILD_NAME, configurable: true });
       return CHILD_INSIDE_2;
     })(SUPER_OUTSIDE)
   `);
@@ -30,9 +31,11 @@ module.exports = function({ types: t }) {
       // Don't transform *this* class expression, or we'll loop forever
       CLASS_EXPRESSION.__babelPluginTransformClassInheritedHook_skip = true;
       var CHILD_INSIDE_2 = path.scope.generateUidIdentifier(childClassName);
+      var CHILD_NAME = t.stringLiteral(childClassName);
       var SUPER_OUTSIDE = t.identifier(superClassName);
 
       return tmpl({
+        CHILD_NAME,
         SUPER_INSIDE,
         CHILD_INSIDE_1,
         CLASS_EXPRESSION,
