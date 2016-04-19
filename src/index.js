@@ -5,7 +5,7 @@ module.exports = function({ types: t }) {
     (function(SUPER_INSIDE){
       var CHILD_INSIDE_1 = CLASS_EXPRESSION
       var CHILD_INSIDE_2 = CHILD_INSIDE_1
-      if (SUPER_INSIDE.hasOwnProperty("onInherited")) {
+      if ("onInherited" in SUPER_INSIDE) {
         if (typeof SUPER_INSIDE.onInherited == 'function') {
           CHILD_INSIDE_2 = SUPER_INSIDE.onInherited(CHILD_INSIDE_1) || CHILD_INSIDE_1;
         } else {

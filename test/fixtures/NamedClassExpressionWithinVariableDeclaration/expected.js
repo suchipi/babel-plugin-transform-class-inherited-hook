@@ -42,7 +42,7 @@ var Apple = function (_Fruit) {
 
   var _Banana2 = _Banana;
 
-  if (_Fruit.hasOwnProperty("onInherited")) {
+  if ("onInherited" in _Fruit) {
     if (typeof _Fruit.onInherited == 'function') {
       _Banana2 = _Fruit.onInherited(_Banana) || _Banana;
     } else {

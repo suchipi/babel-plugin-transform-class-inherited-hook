@@ -78,4 +78,42 @@ describe('Class.onInherited', function() {
       expect(Child.letter()).to.equal("A");
     });
   });
+
+  describe("When a grandchild inherits", function(){
+    it("Grandparent.onInherited is still called", function(){
+      var callback = sinon.spy();
+
+      class Grandparent {
+        static onInherited(inheritor) {
+          callback(inheritor);
+        }
+      }
+
+      class Parent extends Grandparent {}
+      class Child extends Parent {}
+
+      expect(callback).to.have.been.calledWith(Parent);
+      expect(callback).to.have.been.calledWith(Child);
+    });
+
+    it("Grandparent.onInherited is not called if Parent redefined onInherited", function(){
+      var callback = sinon.spy();
+
+      class Grandparent {
+        static onInherited(inheritor) {
+          callback(inheritor);
+        }
+      }
+
+      class Parent extends Grandparent {
+        static onInherited() {
+          // do nothing
+        }
+      }
+      class Child extends Parent {}
+
+      expect(callback).to.have.been.calledWith(Parent);
+      expect(callback).not.to.have.been.calledWith(Child);
+    });
+  });
 })

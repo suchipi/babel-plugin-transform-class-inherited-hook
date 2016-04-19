@@ -23,7 +23,7 @@ var Apple = function (_Fruit) {
 
   var _Apple2 = _Apple;
 
-  if (_Fruit.hasOwnProperty("onInherited")) {
+  if ("onInherited" in _Fruit) {
     if (typeof _Fruit.onInherited == 'function') {
       _Apple2 = _Fruit.onInherited(_Apple) || _Apple;
     } else {
@@ -159,7 +159,7 @@ User.find(1).name === "Bob";
 
 ## But this makes class extension untrustworthy and changes the semantics of a well-defined system!
 
-Yeah, it does. But it can help create a little bit of structure in an otherwise anything-goes pure functional world.
+Yeah, it does. But it can help provide a little bit of structure and get rid of a little boilerplate.
 
 ## Installation
 
