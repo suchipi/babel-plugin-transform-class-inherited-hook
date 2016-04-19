@@ -30,6 +30,13 @@ var Apple = function (_Fruit) {
       throw new TypeError("Attempted to call onInherited, but it was not a function");
     }
   }
+
+  if (typeof _Apple2 == 'function') {
+    Object.defineProperty(_Apple2, "name", {
+      value: "Apple",
+      configurable: true
+    });
+  }
   return _Apple2;
 }(Fruit);
 ```
