@@ -40,6 +40,13 @@ var Apple = function (_Fruit) {
     return _Apple;
   }(_Fruit);
 
+  if (typeof _Apple == 'function') {
+    Object.defineProperty(_Apple, "name", {
+      value: "Apple",
+      configurable: true
+    });
+  }
+
   var _Apple2 = _Apple;
 
   if ("onInherited" in _Fruit) {

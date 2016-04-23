@@ -44,6 +44,13 @@ var _class = function (_Fruit) {
     return _class2;
   }(_Fruit);
 
+  if (typeof _class2 == 'function') {
+    Object.defineProperty(_class2, "name", {
+      value: "_class",
+      configurable: true
+    });
+  }
+
   var _class3 = _class2;
 
   if ("onInherited" in _Fruit) {

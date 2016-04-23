@@ -100,6 +100,18 @@ describe('Class.onInherited', function() {
     });
   });
 
+  describe("when onInherited is called", function(){
+    it("child class has a valid name property", function(){
+      class Parent {
+        static onInherited(child) {
+          expect(child.name).to.equal("Child");
+        }
+      }
+
+      class Child extends Parent {}
+    });
+  });
+
   describe("When a grandchild inherits", function(){
     it("Grandparent.onInherited is still called", function(){
       var callback = sinon.spy();

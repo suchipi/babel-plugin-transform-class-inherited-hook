@@ -4,6 +4,10 @@ module.exports = function({ types: t }) {
   var tmpl = template(`
     (function(SUPER_INSIDE){
       var CHILD_INSIDE_1 = CLASS_EXPRESSION
+      if (typeof CHILD_INSIDE_1 == 'function') {
+        Object.defineProperty(CHILD_INSIDE_1, "name", { value: CHILD_NAME, configurable: true });
+      }
+
       var CHILD_INSIDE_2 = CHILD_INSIDE_1
       if ("onInherited" in SUPER_INSIDE) {
         if (typeof SUPER_INSIDE.onInherited == 'function') {
