@@ -1,44 +1,57 @@
 # babel-plugin-transform-class-inherited-hook
 
-Babel plugin that transforms class declarations with superclasses to call superclass.onInherited after declaration (if present).
+Babel plugin that transforms subclass declarations to call superclass.onInherited afterwards (if present).
 
 ## Example
 
 Before:
 ```javascript
 class Apple extends Fruit {
-  constructor() {
-    console.log("Yum!");
+  tastiness() {
+    return 7;
   }
 }
 ```
 After:
 ```javascript
-var Apple = function (_Fruit) {
-  var _Apple = class extends _Fruit {
-    constructor() {
-      console.log("Yum!");
+var Apple = function () {
+  // Declare the Apple class as an anonymous class _Apple.
+  var _Apple = class extends Fruit {
+    tastiness() {
+      return 7;
     }
   }
 
-  var _Apple2 = _Apple;
+  // Set _Apple's name property to 'Apple'.
+  Object.defineProperty(_Apple, "name", { value: "Apple", configurable: true });
 
-  if ("onInherited" in _Fruit) {
-    if (typeof _Fruit.onInherited == 'function') {
-      _Apple2 = _Fruit.onInherited(_Apple) || _Apple;
+  // If Fruit has a property called onInherited,
+  if ("onInherited" in Fruit) {
+    // and it's a function,
+    if (typeof Fruit.onInherited == 'function') {
+      // call it and save the returned value.
+      var _Apple2 = Fruit.onInherited(_Apple);
+
+      // If Fruit.onInherited returned a value,
+      if (_Apple2 !== undefined) {
+        // if it's a function, define its name property as 'Apple', if it didn't have that already.
+        if (typeof _Apple2 == 'function' && _Apple2.name !== "Apple") {
+          Object.defineProperty(_Apple2, "name", { value: "Apple", configurable: true });
+        }
+
+        // Use the returned value as the class instead of the declared one
+        _Apple = _Apple2;
+      }
+    // If Fruit.onInherited is present but not a function,
     } else {
+      // complain about it
       throw new TypeError("Attempted to call onInherited, but it was not a function");
     }
   }
 
-  if (typeof _Apple2 == 'function') {
-    Object.defineProperty(_Apple2, "name", {
-      value: "Apple",
-      configurable: true
-    });
-  }
-  return _Apple2;
-}(Fruit);
+  // Return the class so it gets set as the variable
+  return _Apple;
+}();
 ```
 
 ## What?
@@ -54,9 +67,9 @@ This lets you hook class inheritance:
 ```javascript
 function register(klass){ ... } // Add to a map, wire things up, etc
 
-class LoggedItem {
+class RegisteredItem {
   static onInherited(child) {
-    console.log("A new logged item type was created:", child);
+    console.log(`A new registered item class was created: ${child.name}`);
     register(child);
   }
 }
@@ -65,16 +78,19 @@ class LoggedItem {
 It also lets you transform classes at inheritance time:
 ```javascript
 class Polyfill {
+  // Whether we need to shim the native behavior
   static needsToBeShimmed() {
     return true;
   }
 
+  // If we don't need to shim the native behavior, then
+  // this is the native class that should be used instead
   static nativeClass() {
     return null;
   }
 
   static onInherited(child) {
-    let { needsToBeShimmed, nativeClass } = child || this;
+    let { needsToBeShimmed, nativeClass } = child;
 
     if (!needsToBeShimmed()) {
       // If we return a value from onInherited, it will be used
@@ -110,7 +126,7 @@ Ok, how about automatically calling react-redux's `connect` method?
 import React from 'react';
 import { connect } from 'react-redux';
 
-class ReduxContainer extends React.Component {
+class ConnectedContainer extends React.Component {
   static onInherited(child) {
     let { mapStateToProps, mapDispatchToProps, mergeProps } = child;
     return connect(mapStateToProps, mapDispatchToProps, mergeProps)(child);
@@ -118,10 +134,10 @@ class ReduxContainer extends React.Component {
   }
 }
 
-class SomeContainer extends ReduxContainer {
+class NiceFlowerbed extends ConnectedContainer {
   static mapStateToProps(state, ownProps) { ... }
 }
-// SomeContainer has already been connected to the store
+// NiceFlowerbed has already been connected to the store
 ```
 
 Or maybe generating a reducer from a class with action handler methods?
@@ -130,16 +146,17 @@ import { handleActions } from 'redux-actions';
 
 class Reducer {
   static onInherited(child) {
-    // The return value of onInherited doesn't have to be a class
+    // The return value of onInherited doesn't have
+    // to be a class; in this case, it's just a function.
     return handleActions(child.prototype);
   }
 }
 
-class Todos extends Reducer {
-  ADD_TODO(state, action) { ... }
-  REMOVE_TODO(state, action) { ... }
+class Magic extends Reducer {
+  CAST_SPELL(state, action) { ... }
+  LEARN_SPELL(state, action) { ... }
 }
-// Todos is a reducer function that will handle ADD_TODO and REMOVE_TODO actions
+// Magic is a reducer function that will handle actions of type CAST_SPELL and LEARN_SPELL
 ```
 
 You could even do the unthinkable...
@@ -147,20 +164,18 @@ You could even do the unthinkable...
 let ActiveRecord = {
   Base: class {
     static onInherited(child) {
-      associateWithDatabaseTable(child, child.tableName);
-      definePropertyAccessorsUsingAttributes(child, child.tableName);
-      child.find = createDatabaseFinderMethod(child, child.tableName);
+      associateWithDatabaseTable(child, child.name);
+      definePropertyAccessorsUsingAttributes(child, child.name);
+      child.find = createDatabaseFinderMethod(child, child.name);
     }
 
     save() { ... }
   }
 };
 
-class User extends ActiveRecord.Base {
-  static tableName = "users";
-}
+class User extends ActiveRecord.Base {}
 
-User.find(1).name === "Bob";
+assert(User.find(1).name === "Bob");
 
 ```
 

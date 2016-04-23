@@ -22,9 +22,9 @@ var _inherits3 = _interopRequireDefault(_inherits2);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var Apple = function (_Fruit) {
-  var _Banana = function (_Fruit2) {
-    (0, _inherits3.default)(_Banana, _Fruit2);
+var Apple = function () {
+  var _Banana = function (_Fruit) {
+    (0, _inherits3.default)(_Banana, _Fruit);
 
     function _Banana() {
       (0, _classCallCheck3.default)(this, _Banana);
@@ -38,30 +38,31 @@ var Apple = function (_Fruit) {
       }
     }]);
     return _Banana;
-  }(_Fruit);
+  }(Fruit);
 
-  if (typeof _Banana == 'function') {
-    Object.defineProperty(_Banana, "name", {
-      value: "Banana",
-      configurable: true
-    });
-  }
+  Object.defineProperty(_Banana, "name", {
+    value: "Banana",
+    configurable: true
+  });
 
-  var _Banana2 = _Banana;
+  if ("onInherited" in Fruit) {
+    if (typeof Fruit.onInherited == 'function') {
+      var _Banana2 = Fruit.onInherited(_Banana);
 
-  if ("onInherited" in _Fruit) {
-    if (typeof _Fruit.onInherited == 'function') {
-      _Banana2 = _Fruit.onInherited(_Banana) || _Banana;
+      if (_Banana2 !== void 0) {
+        if (typeof _Banana2 == 'function' && _Banana2.name !== "Banana") {
+          Object.defineProperty(_Banana2, "name", {
+            value: "Banana",
+            configurable: true
+          });
+        }
+
+        _Banana = _Banana2;
+      }
     } else {
       throw new TypeError("Attempted to call onInherited, but it was not a function");
     }
   }
 
-  if (typeof _Banana2 == 'function') {
-    Object.defineProperty(_Banana2, "name", {
-      value: "Banana",
-      configurable: true
-    });
-  }
-  return _Banana2;
-}(Fruit);
+  return _Banana;
+}();

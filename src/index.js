@@ -2,51 +2,51 @@ import template from "babel-template";
 
 module.exports = function({ types: t }) {
   var tmpl = template(`
-    (function(SUPER_INSIDE){
-      var CHILD_INSIDE_1 = CLASS_EXPRESSION
-      if (typeof CHILD_INSIDE_1 == 'function') {
-        Object.defineProperty(CHILD_INSIDE_1, "name", { value: CHILD_NAME, configurable: true });
-      }
+    (function(){
+      var CHILD = CLASS_EXPRESSION
+      Object.defineProperty(CHILD, "name", { value: CHILD_NAME, configurable: true });
 
-      var CHILD_INSIDE_2 = CHILD_INSIDE_1
-      if ("onInherited" in SUPER_INSIDE) {
-        if (typeof SUPER_INSIDE.onInherited == 'function') {
-          CHILD_INSIDE_2 = SUPER_INSIDE.onInherited(CHILD_INSIDE_1) || CHILD_INSIDE_1;
+      if ("onInherited" in PARENT) {
+        if (typeof PARENT.onInherited == 'function') {
+          var RETURNED_NEW_CHILD = PARENT.onInherited(CHILD);
+          if (RETURNED_NEW_CHILD !== void 0) {
+            if (typeof RETURNED_NEW_CHILD == 'function' && RETURNED_NEW_CHILD.name !== CHILD_NAME) {
+              Object.defineProperty(RETURNED_NEW_CHILD, "name", { value: CHILD_NAME, configurable: true });
+            }
+            CHILD = RETURNED_NEW_CHILD;
+          }
         } else {
           throw new TypeError("Attempted to call onInherited, but it was not a function");
         }
       }
-      if (typeof CHILD_INSIDE_2 == 'function') {
-        Object.defineProperty(CHILD_INSIDE_2, "name", { value: CHILD_NAME, configurable: true });
-      }
-      return CHILD_INSIDE_2;
-    })(SUPER_OUTSIDE)
+
+      return CHILD;
+    })();
   `);
 
   function transform(childClassName, path) {
       var superClassName = path.node.superClass.name;
 
-      var SUPER_INSIDE = path.scope.generateUidIdentifier(superClassName);
-      var CHILD_INSIDE_1 = path.scope.generateUidIdentifier(childClassName);
+      var PARENT = t.identifier(superClassName);
+      var CHILD = path.scope.generateUidIdentifier(childClassName);
       var CLASS_EXPRESSION = t.classExpression(
         null,
-        SUPER_INSIDE,
+        PARENT,
         path.node.body,
         []
       );
       // Don't transform *this* class expression, or we'll loop forever
       CLASS_EXPRESSION.__babelPluginTransformClassInheritedHook_skip = true;
-      var CHILD_INSIDE_2 = path.scope.generateUidIdentifier(childClassName);
-      var CHILD_NAME = t.stringLiteral(childClassName);
-      var SUPER_OUTSIDE = t.identifier(superClassName);
+      var RETURNED_NEW_CHILD = path.scope.generateUidIdentifier(childClassName);
+      var CHILD_NAME = t.stringLiteral(childClassName || "class");
+
 
       return tmpl({
         CHILD_NAME,
-        SUPER_INSIDE,
-        CHILD_INSIDE_1,
+        CHILD,
         CLASS_EXPRESSION,
-        CHILD_INSIDE_2,
-        SUPER_OUTSIDE
+        RETURNED_NEW_CHILD,
+        PARENT
       });
     }
 

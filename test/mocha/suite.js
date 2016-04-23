@@ -33,6 +33,29 @@ describe('Class.onInherited', function() {
       expect(Child).to.equal(replacement);
     });
 
+    it("can redefine the value of the declared class to a falsy value other than undefined", function() {
+      // Not sure why you'd want to do this, but...
+      class Falserator {
+        static onInherited(child) {
+          return false;
+        }
+      }
+
+      class FalseratedChild extends Falserator {}
+
+      expect(FalseratedChild).to.equal(false);
+
+      class Nullifier {
+        static onInherited(child) {
+          return null;
+        }
+      }
+
+      class NullifiedChild extends Nullifier {}
+
+      expect(NullifiedChild).to.equal(null);
+    });
+
     it("has a reliable name property", function(){
       class Parent {
         static onInherited(child) {}
@@ -71,6 +94,29 @@ describe('Class.onInherited', function() {
       var Child = class extends Parent {}
 
       expect(Child).to.equal(replacement);
+    });
+
+    it("can redefine the value of the declared class to a falsy value other than undefined", function() {
+      // Not sure why you'd want to do this, but...
+      var Falserator = class {
+        static onInherited(child) {
+          return false;
+        }
+      }
+
+      var FalseratedChild = class extends Falserator {}
+
+      expect(FalseratedChild).to.equal(false);
+
+      var Nullifier = class {
+        static onInherited(child) {
+          return null;
+        }
+      }
+
+      var NullifiedChild = class extends Nullifier {}
+
+      expect(NullifiedChild).to.equal(null);
     });
 
     it("has a reliable name property", function(){
