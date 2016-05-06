@@ -4,6 +4,7 @@ var chalk = require('chalk');
 var clear = require('clear');
 var diff = require('diff');
 var fs = require('fs');
+var jsonfile = require('jsonfile');
 var path = require('path');
 var Mocha = require('mocha');
 
@@ -51,9 +52,17 @@ function runMocha() {
 }
 
 function runTest(dir) {
-	var output = babel.transformFileSync(dir.path + '/actual.js', {
+	var babelOptions = {
 		plugins: [pluginPath]
-	});
+	}
+
+	babelRcPath = path.join(dir.path, '.babelrc');
+	try {
+		fs.accessSync(babelRcPath);
+		babelOptions = jsonfile.readFileSync(babelRcPath);
+	} catch(e) {}
+
+	var output = babel.transformFileSync(dir.path + '/actual.js', babelOptions);
 
 	var expected = fs.readFileSync(dir.path + '/expected.js', 'utf-8');
 

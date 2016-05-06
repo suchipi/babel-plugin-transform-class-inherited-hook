@@ -53,7 +53,7 @@ module.exports = function({ types: t }) {
       null,
       PARENT,
       path.node.body,
-      []
+      path.node.decorators || []
     );
     // Don't transform *this* class expression, or we'll loop forever
     CLASS_EXPRESSION[SKIP] = true;
