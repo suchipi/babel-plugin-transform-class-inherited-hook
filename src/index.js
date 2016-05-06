@@ -25,9 +25,7 @@ module.exports = function({ types: t }) {
   `);
 
   function transform(childClassName, path) {
-      var superClassName = path.node.superClass.name;
-
-      var PARENT = t.identifier(superClassName);
+      var PARENT = path.node.superClass;
       var CHILD = path.scope.generateUidIdentifier(childClassName);
       var CLASS_EXPRESSION = t.classExpression(
         null,
