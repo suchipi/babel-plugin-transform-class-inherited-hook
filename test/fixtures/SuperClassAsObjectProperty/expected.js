@@ -20,6 +20,36 @@ var _classCallCheck2 = require("babel-runtime/helpers/classCallCheck");
 
 var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
 
+var __babelPluginTransformClassInheritedHook = function __babelPluginTransformClassInheritedHook(child, parent, childName) {
+  if (childName) {
+    Object.defineProperty(child, "name", {
+      value: childName,
+      configurable: true
+    });
+  }
+
+  if ("onInherited" in parent) {
+    if (typeof parent.onInherited == 'function') {
+      var returnedNewChild = parent.onInherited(child);
+
+      if (returnedNewChild !== void 0) {
+        if (childName && typeof returnedNewChild == 'function' && returnedNewChild.name !== childName) {
+          Object.defineProperty(returnedNewChild, "name", {
+            value: childName,
+            configurable: true
+          });
+        }
+
+        child = returnedNewChild;
+      }
+    } else {
+      throw new TypeError("Attempted to call onInherited, but it was not a function");
+    }
+  }
+
+  return child;
+};
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var Fruits = {
@@ -49,29 +79,5 @@ var RedDelicious = function () {
     return _RedDelicious;
   }(Fruits.Apple);
 
-  Object.defineProperty(_RedDelicious, "name", {
-    value: "RedDelicious",
-    configurable: true
-  });
-
-  if ("onInherited" in Fruits.Apple) {
-    if (typeof Fruits.Apple.onInherited == 'function') {
-      var _RedDelicious2 = Fruits.Apple.onInherited(_RedDelicious);
-
-      if (_RedDelicious2 !== void 0) {
-        if (typeof _RedDelicious2 == 'function' && _RedDelicious2.name !== "RedDelicious") {
-          Object.defineProperty(_RedDelicious2, "name", {
-            value: "RedDelicious",
-            configurable: true
-          });
-        }
-
-        _RedDelicious = _RedDelicious2;
-      }
-    } else {
-      throw new TypeError("Attempted to call onInherited, but it was not a function");
-    }
-  }
-
-  return _RedDelicious;
+  return __babelPluginTransformClassInheritedHook(_RedDelicious, Fruits.Apple, "RedDelicious");
 }();

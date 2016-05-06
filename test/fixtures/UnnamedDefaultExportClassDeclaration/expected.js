@@ -24,6 +24,36 @@ var _inherits2 = require("babel-runtime/helpers/inherits");
 
 var _inherits3 = _interopRequireDefault(_inherits2);
 
+var __babelPluginTransformClassInheritedHook = function __babelPluginTransformClassInheritedHook(child, parent, childName) {
+  if (childName) {
+    Object.defineProperty(child, "name", {
+      value: childName,
+      configurable: true
+    });
+  }
+
+  if ("onInherited" in parent) {
+    if (typeof parent.onInherited == 'function') {
+      var returnedNewChild = parent.onInherited(child);
+
+      if (returnedNewChild !== void 0) {
+        if (childName && typeof returnedNewChild == 'function' && returnedNewChild.name !== childName) {
+          Object.defineProperty(returnedNewChild, "name", {
+            value: childName,
+            configurable: true
+          });
+        }
+
+        child = returnedNewChild;
+      }
+    } else {
+      throw new TypeError("Attempted to call onInherited, but it was not a function");
+    }
+  }
+
+  return child;
+};
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var _class = function () {
@@ -44,31 +74,7 @@ var _class = function () {
     return _class2;
   }(Fruit);
 
-  Object.defineProperty(_class2, "name", {
-    value: "_class",
-    configurable: true
-  });
-
-  if ("onInherited" in Fruit) {
-    if (typeof Fruit.onInherited == 'function') {
-      var _class3 = Fruit.onInherited(_class2);
-
-      if (_class3 !== void 0) {
-        if (typeof _class3 == 'function' && _class3.name !== "_class") {
-          Object.defineProperty(_class3, "name", {
-            value: "_class",
-            configurable: true
-          });
-        }
-
-        _class2 = _class3;
-      }
-    } else {
-      throw new TypeError("Attempted to call onInherited, but it was not a function");
-    }
-  }
-
-  return _class2;
+  return __babelPluginTransformClassInheritedHook(_class2, Fruit, "_class");
 }();
 
 exports.default = _class;

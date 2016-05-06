@@ -53,6 +53,7 @@ var Apple = function () {
   return _Apple;
 }();
 ```
+**NOTE:** Actual implementation uses a helper function so this logic isn't repeated every single class declaration.
 
 ## What?
 

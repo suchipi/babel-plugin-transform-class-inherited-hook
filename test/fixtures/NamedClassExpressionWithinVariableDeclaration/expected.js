@@ -20,6 +20,36 @@ var _inherits2 = require("babel-runtime/helpers/inherits");
 
 var _inherits3 = _interopRequireDefault(_inherits2);
 
+var __babelPluginTransformClassInheritedHook = function __babelPluginTransformClassInheritedHook(child, parent, childName) {
+  if (childName) {
+    Object.defineProperty(child, "name", {
+      value: childName,
+      configurable: true
+    });
+  }
+
+  if ("onInherited" in parent) {
+    if (typeof parent.onInherited == 'function') {
+      var returnedNewChild = parent.onInherited(child);
+
+      if (returnedNewChild !== void 0) {
+        if (childName && typeof returnedNewChild == 'function' && returnedNewChild.name !== childName) {
+          Object.defineProperty(returnedNewChild, "name", {
+            value: childName,
+            configurable: true
+          });
+        }
+
+        child = returnedNewChild;
+      }
+    } else {
+      throw new TypeError("Attempted to call onInherited, but it was not a function");
+    }
+  }
+
+  return child;
+};
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var Apple = function () {
@@ -40,29 +70,5 @@ var Apple = function () {
     return _Banana;
   }(Fruit);
 
-  Object.defineProperty(_Banana, "name", {
-    value: "Banana",
-    configurable: true
-  });
-
-  if ("onInherited" in Fruit) {
-    if (typeof Fruit.onInherited == 'function') {
-      var _Banana2 = Fruit.onInherited(_Banana);
-
-      if (_Banana2 !== void 0) {
-        if (typeof _Banana2 == 'function' && _Banana2.name !== "Banana") {
-          Object.defineProperty(_Banana2, "name", {
-            value: "Banana",
-            configurable: true
-          });
-        }
-
-        _Banana = _Banana2;
-      }
-    } else {
-      throw new TypeError("Attempted to call onInherited, but it was not a function");
-    }
-  }
-
-  return _Banana;
+  return __babelPluginTransformClassInheritedHook(_Banana, Fruit, "Banana");
 }();
