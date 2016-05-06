@@ -1,6 +1,8 @@
 import template from "babel-template";
 
 module.exports = function({ types: t }) {
+  let SKIP = Symbol()
+
   var tmpl = template(`
     (function(){
       var CHILD = CLASS_EXPRESSION
@@ -34,7 +36,7 @@ module.exports = function({ types: t }) {
         []
       );
       // Don't transform *this* class expression, or we'll loop forever
-      CLASS_EXPRESSION.__babelPluginTransformClassInheritedHook_skip = true;
+      CLASS_EXPRESSION[SKIP] = true;
       var RETURNED_NEW_CHILD = path.scope.generateUidIdentifier(childClassName);
       var CHILD_NAME = t.stringLiteral(childClassName || "class");
 
@@ -52,7 +54,7 @@ module.exports = function({ types: t }) {
       visitor: {
         "ClassDeclaration|ClassExpression"(path) {
           if (!path.node.superClass) return;
-          if (path.node.__babelPluginTransformClassInheritedHook_skip) return;
+          if (path.node[SKIP]) return;
 
           var childClassName;
 
